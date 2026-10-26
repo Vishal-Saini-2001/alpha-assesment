@@ -23,6 +23,7 @@ export function App() {
     openContact,
     closeContact,
     updateContact,
+    moveContactStage,
     searchQuery,
     setSearchQuery,
     stageFilter,
@@ -101,6 +102,7 @@ export function App() {
                   totalFilteredContacts={filteredContacts.length}
                   selectedContactId={selectedContactId}
                   onSelectContact={openContact}
+                  onMoveStage={moveContactStage}
                   onClearSearch={() => {
                     setSearchQuery('');
                     setStageFilter('All');

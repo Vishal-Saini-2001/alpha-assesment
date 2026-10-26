@@ -139,6 +139,23 @@ export function useContacts() {
     showToast('Reset to initial 10 contacts');
   }, [showToast]);
 
+  // Move contact stage via Drag and Drop
+  const moveContactStage = useCallback(
+    (id: string, newStage: ContactStage) => {
+      let movedName = '';
+      setContacts(prev => {
+        const target = prev.find(c => c.id === id);
+        if (!target || target.stage === newStage) return prev;
+        movedName = target.name;
+        return prev.map(c => (c.id === id ? { ...c, stage: newStage } : c));
+      });
+      if (movedName) {
+        showToast(`Moved ${movedName} to ${newStage}`);
+      }
+    },
+    [showToast]
+  );
+
   return {
     contacts,
     filteredContacts,
@@ -152,6 +169,7 @@ export function useContacts() {
     openContact,
     closeContact,
     updateContact,
+    moveContactStage,
     searchQuery,
     setSearchQuery,
     stageFilter,

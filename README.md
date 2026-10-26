@@ -42,6 +42,7 @@ npm run preview
 - **Single Source of Truth**: All contacts live in a unified React state (`useContacts` custom hook). Updates immediately synchronize across Table and Board views without race conditions or duplicated records.
 - **Synchronized Table View**: A dense, spreadsheet-like data grid with column sorting (Name, Company, Role, Owner, Stage), hover row highlighting, avatar initials, and formatted status pills.
 - **Synchronized Board View**: A Kanban pipeline board categorized by the 4 pipeline stages (`Lead`, `Prospect`, `Qualified`, `Customer`), with stage count badges and balanced card density.
+- **Interactive Drag-and-Drop**: Drag any contact card between pipeline columns to instantly transition its stage. Powered by HTML5 DnD with visual drop indicators and Framer Motion layout gliding animations.
 - **Designed Empty Group State**: In compliance with evaluation requirements, the `Qualified` column initially contains 0 contacts to showcase an intentional empty-state UI (`No contacts yet`, `Contacts will appear here when moved to this stage.`).
 - **Contact Details Inspector Drawer**: Right-side drawer allowing users to inspect full contact metadata and edit **Stage** and **Notes**.
 - **Draft Editing & Change Protection**:
@@ -124,8 +125,7 @@ src/
 ## ⚖️ Trade-offs & Deliberate Decisions
 
 - **No Backend Persistence**: As instructed, all data is stored in React memory. Reloading the page re-initializes the seed data. A "Reset Demo Data" button is also provided for testing.
-- **Drag-and-Drop Excluded**: Drag-and-drop was purposefully not added in favor of delivering rock-solid keyboard navigation, accessibility, responsive overflow handling, and robust draft state protection.
-- **Native Select for Stage**: Using standard HTML form controls wrapped in accessible styling guarantees 100% native screen reader compatibility, keyboard tab order, and mobile reliability over complex headless comboboxes.
+- **Client-Side Drag and Drop**: Implemented using HTML5 drag-and-drop integrated with Framer Motion layout animations for lightweight performance with zero external DnD package overhead.
 
 ---
 

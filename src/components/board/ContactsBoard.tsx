@@ -9,6 +9,7 @@ interface ContactsBoardProps {
   totalFilteredContacts: number;
   selectedContactId: string | null;
   onSelectContact: (id: string) => void;
+  onMoveStage: (contactId: string, newStage: ContactStage) => void;
   onClearSearch?: () => void;
   isSearching: boolean;
 }
@@ -18,6 +19,7 @@ export const ContactsBoard: React.FC<ContactsBoardProps> = ({
   totalFilteredContacts,
   selectedContactId,
   onSelectContact,
+  onMoveStage,
   onClearSearch,
   isSearching,
 }) => {
@@ -48,6 +50,7 @@ export const ContactsBoard: React.FC<ContactsBoardProps> = ({
             contacts={contactsByStage[stage]}
             selectedContactId={selectedContactId}
             onSelectContact={onSelectContact}
+            onMoveStage={onMoveStage}
           />
         ))}
       </div>

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Contact } from '../../types/contact';
 import { Avatar } from '../common/Avatar';
 import { LabelChip } from '../common/LabelChip';
-import { Building2, Briefcase } from 'lucide-react';
+import { Building2, Briefcase, GripVertical } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ContactCardProps {
@@ -16,6 +16,8 @@ export const ContactCard: React.FC<ContactCardProps> = ({
   isSelected,
   onSelect,
 }) => {
+  const [isDragging, setIsDragging] = useState(false);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -23,73 +25,104 @@ export const ContactCard: React.FC<ContactCardProps> = ({
     }
   };
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', contact.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.18, ease: 'easeOut' }}
-      role="button"
-      tabIndex={0}
-      aria-selected={isSelected}
-      onClick={() => onSelect(contact.id)}
-      onKeyDown={handleKeyDown}
-      className={`group relative p-3.5 bg-white rounded-lg border text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 select-none ${
-        isSelected
-          ? 'border-indigo-500 shadow-sm ring-1 ring-indigo-500/30'
-          : 'border-slate-200/90 hover:border-slate-300 hover:shadow-subtle'
-      }`}
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      className="cursor-grab active:cursor-grabbing outline-none"
     >
-      {/* Top Header: Avatar + Name */}
-      <div className="flex items-start gap-2.5">
-        <Avatar name={contact.name} size="md" />
-        <div className="min-w-0 flex-1">
-          <h4 className="text-xs font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
-            {contact.name}
-          </h4>
-          {contact.role && (
-            <p className="text-[11px] text-slate-500 truncate flex items-center gap-1 mt-0.5">
-              <Briefcase className="w-2.5 h-2.5 text-slate-400 shrink-0" />
-              <span>{contact.role}</span>
-            </p>
-          )}
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: isDragging ? 0.4 : 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        whileHover={{ y: isDragging ? 0 : -2 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        role="button"
+        tabIndex={0}
+        aria-selected={isSelected}
+        onClick={() => {
+          if (!isDragging) {
+            onSelect(contact.id);
+          }
+        }}
+        onKeyDown={handleKeyDown}
+        className={`group relative p-3.5 bg-white rounded-lg border text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 select-none transition-shadow ${
+          isDragging
+            ? 'border-indigo-400 border-dashed ring-2 ring-indigo-400/30 shadow-md'
+            : isSelected
+            ? 'border-indigo-500 shadow-sm ring-1 ring-indigo-500/30'
+            : 'border-slate-200/90 hover:border-slate-300 hover:shadow-subtle'
+        }`}
+      >
+        {/* Drag Handle Indicator */}
+        <div
+          className="absolute top-3 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-300 hover:text-slate-500 pointer-events-none"
+          title="Drag to change stage"
+        >
+          <GripVertical className="w-3.5 h-3.5" />
         </div>
-      </div>
 
-      {/* Company if provided */}
-      {contact.company && (
-        <div className="mt-2 text-xs text-slate-700 font-medium flex items-center gap-1.5 pl-0.5">
-          <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
-          <span className="truncate">{contact.company}</span>
+        {/* Top Header: Avatar + Name */}
+        <div className="flex items-start gap-2.5 pr-4">
+          <Avatar name={contact.name} size="md" />
+          <div className="min-w-0 flex-1">
+            <h4 className="text-xs font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+              {contact.name}
+            </h4>
+            {contact.role && (
+              <p className="text-[11px] text-slate-500 truncate flex items-center gap-1 mt-0.5">
+                <Briefcase className="w-2.5 h-2.5 text-slate-400 shrink-0" />
+                <span>{contact.role}</span>
+              </p>
+            )}
+          </div>
         </div>
-      )}
 
-      {/* Label Chips */}
-      {contact.labels && contact.labels.length > 0 && (
-        <div className="mt-2.5 flex items-center gap-1 flex-wrap">
-          {contact.labels.slice(0, 3).map(label => (
-            <LabelChip key={label} label={label} size="xs" />
-          ))}
-          {contact.labels.length > 3 && (
-            <span className="text-[10px] text-slate-400 font-medium">
-              +{contact.labels.length - 3}
-            </span>
-          )}
-        </div>
-      )}
+        {/* Company if provided */}
+        {contact.company && (
+          <div className="mt-2 text-xs text-slate-700 font-medium flex items-center gap-1.5 pl-0.5">
+            <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+            <span className="truncate">{contact.company}</span>
+          </div>
+        )}
 
-      {/* Footer: Owner */}
-      <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-        <span className="text-slate-400 text-[10px] uppercase tracking-wider font-medium">
-          Owner
-        </span>
-        <div className="flex items-center gap-1.5 text-slate-600">
-          <Avatar name={contact.owner} size="xs" />
-          <span className="font-medium truncate max-w-[110px]">{contact.owner}</span>
+        {/* Label Chips */}
+        {contact.labels && contact.labels.length > 0 && (
+          <div className="mt-2.5 flex items-center gap-1 flex-wrap">
+            {contact.labels.slice(0, 3).map(label => (
+              <LabelChip key={label} label={label} size="xs" />
+            ))}
+            {contact.labels.length > 3 && (
+              <span className="text-[10px] text-slate-400 font-medium">
+                +{contact.labels.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Footer: Owner */}
+        <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+          <span className="text-slate-400 text-[10px] uppercase tracking-wider font-medium">
+            Owner
+          </span>
+          <div className="flex items-center gap-1.5 text-slate-600">
+            <Avatar name={contact.owner} size="xs" />
+            <span className="font-medium truncate max-w-[110px]">{contact.owner}</span>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
